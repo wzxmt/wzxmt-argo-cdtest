@@ -1,0 +1,101 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: delta-demo-service-imvbizpark
+  namespace: delta
+  labels: 
+    name: delta-demo-imvbizpark
+    app: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      name: delta-demo-imvbizpark
+      app: service
+  template:
+    metadata:
+      labels: 
+        app: service
+        name: delta-demo-imvbizpark
+    spec:
+      containers:
+      - name: delta-demo-service-imvbizpark
+        image: bridge5/service-imvoffice:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        env:
+        - name: "APP_ROUTE"
+          value: "/imvbizpark"
+        - name: "APP_MONGO_NAME"
+          value: "imvbizpark"
+        - name: "APP_MONGO_HOST"
+          value: "10.0.0.180"
+        - name: "APP_MONGO_PORT"
+          value: "37017"
+        - name: "APP_MONGO_USER"
+          value: "admin"
+        - name: "APP_MONGO_PASS"
+          value: "bridge5"
+        - name: "APP_REDIS_PORT"
+          value: "36379"
+        - name: "APP_REDIS_HOST"
+          value: "10.0.0.180"
+        - name: "APP_REDIS_PASS"
+          value: "bridge5"
+        - name: "API_GATEWAYS_ENDPOINT"
+          value: "http://delta-demo-service-gateways.delta:34000"
+        - name: "API_ACCOUNTS_ENDPOINT"
+          value: "http://delta-demo-service-accounts.delta:34001"
+        - name: "API_ADMINISTRATES_ENDPOINT"
+          value: "http://delta-demo-service-administrates.delta:34003"
+        - name: "API_AUDITLOGS_ENDPOINT"
+          value: "http://delta-demo-service-auditlogs.delta:34006"
+        readinessProbe:      
+          httpGet:                
+            path: /imvbizpark/health-check
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 2
+          periodSeconds: 10
+          failureThreshold: 3
+        livenessProbe:      
+          httpGet:                
+            path: /imvbizpark/health-check
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 2
+          periodSeconds: 10
+          failureThreshold: 3
+      imagePullSecrets:
+      - name: harborlogin
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext: 
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+---
+kind: Service
+apiVersion: v1
+metadata: 
+  name: delta-demo-service-imvbizpark
+  namespace: delta
+spec:
+  ports:
+  - protocol: TCP
+    port: 34109
+    targetPort: 3000
+  selector: 
+    name: delta-demo-imvbizpark
+    app: service
+  type: ClusterIP

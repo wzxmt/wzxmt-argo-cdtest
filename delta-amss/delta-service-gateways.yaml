@@ -1,0 +1,87 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: delta-demo-service-gateways
+  namespace: delta
+  labels: 
+    name: delta-demo-gateways
+    app: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      name: delta-demo-gateways
+      app: service
+  template:
+    metadata:
+      labels: 
+        app: service
+        name: delta-demo-gateways
+    spec:
+      containers:
+      - name: delta-demo-service-gateways
+        image: bridge5/service-gateways:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        env:
+        - name: "API_ACCOUNTS_ENDPOINT"
+          value: "http://delta-demo-service-accounts.delta:34001"
+        - name: "API_ADMINISTRATES_ENDPOINT"
+          value: "http://delta-demo-service-administrates.delta:34003"
+        - name: "API_CAPITALDATAS_ENDPOINT"
+          value: "http://delta-demo-service-capitaldatas.delta:34102"
+        - name: "API_AUDITLOGS_ENDPOINT"
+          value: "http://delta-demo-service-auditlogs.delta:34006"
+        - name: "API_IMVBIZPARK_ENDPOINT"
+          value: "http://delta-demo-service-imvbizpark.delta:34109"
+        - name: "API_IMVOFFICE_ENDPOINT"
+          value: "http://delta-demo-service-imvoffice.delta:34102"
+        - name: "API_IMVRETAIL_ENDPOINT"
+          value: "http://delta-demo-service-imvretail.delta:34101"
+        - name: "API_MIXBUDGET_ENDPOINT"
+          value: "http://delta-demo-services-mixbudget.delta:34300"
+      imagePullSecrets:
+      - name: harborlogin
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext: 
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+---
+kind: Service
+apiVersion: v1
+metadata: 
+  name: delta-demo-service-gateways
+  namespace: delta
+spec:
+  ports:
+  - protocol: TCP
+    port: 34000
+    targetPort: 3000
+  selector: 
+    name: delta-demo-gateways
+    app: service
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: delta-demo-service-gateways
+  namespace: delta
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`delta-services.wzxmt.com`) && PathPrefix(`/`)
+    kind: Rule
+    services:
+    - name: delta-demo-service-gateways
+      port: 34000

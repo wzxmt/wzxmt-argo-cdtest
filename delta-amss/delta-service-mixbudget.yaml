@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: delta-demo-mixbudget-appsettings
+  namespace: delta
+data:
+  appsettings.json: |
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Trace",
+          "Microsoft": "Information"
+        }
+      },
+      "AllowedHosts": "*",
+      "ApiPrefix": "/api/1021/v",
+      "AmssApiDomain": "http://127.0.0.1:4000",
+      "Amss2RetailDomain": "http://127.0.0.1:4000",
+      "DeployAsSaas": "False",
+      "DeployAsTesting": "True",
+      "MongoDbConnStr": "mongodb://admin:bridge5@10.0.0.180:37017",
+      "MongoDbName": "amss3",
+      "ImportDbName": "amss3_imported",
+      "DashboardDbName": "AMSS_Dashboard",
+      "LoginEntry": "delta.wzxmt.com/",
+      "NewUserNewGroup": "False",
+      "AdminApiHost": "http://127.0.0.1:4000",
+      "API_ACCOUNTS_ENDPOINT": "http://delta-demo-service-accounts.delta:34001",
+      "API_ADMINISTRATES_ENDPOINT": "http://delta-demo-service-administrates.delta:34003",
+      "API_NOTIFICATIONS_ENDPOINT": "http://127.0.0.1:4000",
+      "API_IMVRETAIL_ENDPOINT": "http://delta-demo-service-gateways.delta:34000",
+      "API_IMVHOTEL_ENDPOINT": "http://127.0.0.1:4000",
+      "API_IMVOFFICE_ENDPOINT": "http://delta-demo-service-gateways.delta:34000",
+      "API_LOGISTICS_ENDPOINT": "http://delta-demo-service-gateways.delta:34000",
+      "API_HEALTH_ENDPOINT": "http://127.0.0.1:4000",
+      "DeployAsKaide": "True",  
+      "FusonProductType": "retail",
+      "FusonServiceType": "imvretail",
+      "IsTurnoverFromCalculation": "False",
+      "EnableSwaggerDocs": "True",
+      "EnableOpLogs": "False",
+      "LocalOpLogsDb": "Data Source=oplog.db",
+      "AuditLogMongoDbConnStr": "mongodb://admin:bridge5@10.0.0.180:37017",
+      "RemoteOpLogsDb": "auditlogs",
+      "RemoteOpLogsColl": "default"
+    }
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: delta-demo-services-mixbudget
+  namespace: delta
+  labels: 
+    name: delta-demo-mixbudget
+    app: services
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      name: delta-demo-mixbudget
+      app: services
+  template:
+    metadata:
+      labels: 
+        app: services
+        name: delta-demo-mixbudget
+    spec:
+      containers:
+      - name: delta-demo-services-mixbudget
+        image: bridge5/service-mixbudget:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 10081
+          protocol: TCP
+        volumeMounts:
+        - name: delta-demo-mixbudget-appsettings       
+          mountPath: /app/appsettings.json
+          subPath: appsettings.json
+      volumes:    
+        - name: delta-demo-mixbudget-appsettings      
+          configMap:        
+            name: delta-demo-mixbudget-appsettings
+      imagePullSecrets:
+      - name: harborlogin
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext: 
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+---
+kind: Service
+apiVersion: v1
+metadata: 
+  name: delta-demo-services-mixbudget
+  namespace: delta
+spec:
+  ports:
+  - protocol: TCP
+    port: 34300
+    targetPort: 10081
+  selector: 
+    name: delta-demo-mixbudget
+    app: services
