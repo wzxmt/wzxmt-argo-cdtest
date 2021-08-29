@@ -2,7 +2,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: delta-demo-service-capitaldatas
-  namespace: delta
+  #namespace: delta
   labels: 
     name: delta-demo-capitaldatas
     app: service
@@ -79,7 +79,7 @@ kind: Service
 apiVersion: v1
 metadata: 
   name: delta-demo-service-capitaldatas
-  namespace: delta
+  #namespace: delta
 spec:
   ports:
   - protocol: TCP

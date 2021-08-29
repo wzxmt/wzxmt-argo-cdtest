@@ -2,7 +2,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: delta-demo-service-imvoffice
-  namespace: delta
+  #namespace: delta
   labels: 
     name: delta-demo-imvoffice
     app: service
@@ -85,7 +85,7 @@ kind: Service
 apiVersion: v1
 metadata: 
   name: delta-demo-service-imvoffice
-  namespace: delta
+  #namespace: delta
 spec:
   ports:
   - protocol: TCP

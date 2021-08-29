@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: delta-demo-frontend-initial
-  namespace: delta
+  #namespace: delta
 data:
   initial.js: |
     (function (window) {
@@ -28,7 +28,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: delta-demo-amss-frontend
-  namespace: delta
+  #namespace: delta
   labels: 
     name: delta-demo-frontend
     app: amss
@@ -78,7 +78,7 @@ kind: Service
 apiVersion: v1
 metadata: 
   name: delta-demo-amss-frontend
-  namespace: delta
+  #namespace: delta
 spec:
   ports:
   - protocol: TCP
@@ -92,7 +92,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: delta-demo-amss-frontend
-  namespace: delta
+  #namespace: delta
 spec:
   entryPoints:
     - web

@@ -2,7 +2,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: delta-demo-service-gateways
-  namespace: delta
+  #namespace: delta
   labels: 
     name: delta-demo-gateways
     app: service
@@ -61,7 +61,7 @@ kind: Service
 apiVersion: v1
 metadata: 
   name: delta-demo-service-gateways
-  namespace: delta
+  #namespace: delta
 spec:
   ports:
   - protocol: TCP
@@ -75,7 +75,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: delta-demo-service-gateways
-  namespace: delta
+  #namespace: delta
 spec:
   entryPoints:
     - web

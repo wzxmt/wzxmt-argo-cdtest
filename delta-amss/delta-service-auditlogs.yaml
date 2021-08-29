@@ -2,7 +2,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: delta-demo-service-auditlogs
-  namespace: delta
+  #namespace: delta
   labels: 
     name: delta-demo-auditlogs
     app: service
@@ -83,7 +83,7 @@ kind: Service
 apiVersion: v1
 metadata: 
   name: delta-demo-service-auditlogs
-  namespace: delta
+  #namespace: delta
 spec:
   ports:
   - protocol: TCP

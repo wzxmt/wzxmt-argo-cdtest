@@ -13,7 +13,7 @@ cat << EOF >registry-secret.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  namespace: delta
+  #namespace: delta
   name: harborlogin
 type: kubernetes.io/dockerconfigjson
 data:
